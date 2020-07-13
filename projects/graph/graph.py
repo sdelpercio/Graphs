@@ -112,7 +112,66 @@ class Graph:
         starting_vertex to destination_vertex in
         breath-first order.
         """
-        pass  # TODO
+        # make a stack
+        # push on our starting node
+        s = Stack()
+        s.push(starting_vertex)
+        # make a set to track if a vertex has been visited before
+        visited = set()
+        visited.add(starting_vertex)
+        
+        shortest = []
+        
+        # while our queue isnt empty
+        while s.size() > 0:
+            # take first in line
+            curr = s.pop()
+            visited.add(curr)
+
+            # look at neighbors for any not visited
+            neighbors = self.get_neighbors(curr)   
+            if destination_vertex in neighbors:
+                shortest.append(curr)
+                shortest.append(destination_vertex)
+                return shortest
+            else:
+                shortest.append(curr)
+                
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    s.push(neighbor)
+                    visited.add(neighbor)
+                    
+        # # make a queue
+        # # enqueue starting_vertex
+        # q = Queue()
+        # q.enqueue(starting_vertex)
+        # # make a set to track if a vertex has been visited before
+        # visited = set()
+        # visited.add(starting_vertex)
+        
+        # shortest = []
+        
+        # # while our queue isnt empty
+        # while q.size() > 0:
+        #     # take first in line
+        #     curr = q.dequeue()
+        #     visited.add(curr)
+
+        #     # look at neighbors for any not visited
+        #     neighbors = self.get_neighbors(curr)   
+        #     if destination_vertex in neighbors:
+        #         shortest.append(curr)
+        #         shortest.append(destination_vertex)
+        #         return shortest
+        #     else:
+        #         shortest.append(curr)
+                
+        #     for neighbor in neighbors:
+        #         if neighbor not in visited:
+        #             q.enqueue(neighbor)
+        #             visited.add(neighbor)
+        
 
     def dfs(self, starting_vertex, destination_vertex):
         """
@@ -120,9 +179,39 @@ class Graph:
         starting_vertex to destination_vertex in
         depth-first order.
         """
-        pass  # TODO
+        # make a stack
+        # push on our starting node
+        s = Stack()
+        s.push(starting_vertex)
+        # make a set to track if a vertex has been visited before
+        visited = set()
+        visited.add(starting_vertex)
+        
+        shortest = []
+        
+        # while our queue isnt empty
+        while s.size() > 0:
+            # take first in line
+            curr = s.pop()
+            visited.add(curr)
 
-    def dfs_recursive(self, starting_vertex, destination_vertex):
+            # look at neighbors for any not visited
+            neighbors = self.get_neighbors(curr)   
+            if destination_vertex in neighbors:
+                shortest.append(curr)
+                shortest.append(destination_vertex)
+                return shortest
+            else:
+                shortest.append(curr)
+                
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    s.push(neighbor)
+                    visited.add(neighbor)
+        
+        
+
+    def dfs_recursive(self, starting_vertex, destination_vertex, path=[]):
         """
         Return a list containing a path from
         starting_vertex to destination_vertex in
@@ -130,7 +219,19 @@ class Graph:
 
         This should be done using recursion.
         """
-        pass  # TODO
+        # base case
+
+        path += [starting_vertex]
+        
+        # recursive case
+        neighbors = self.get_neighbors(starting_vertex)
+        for neighbor in neighbors:
+            if neighbor not in path:
+                path = self.dfs_recursive(neighbor, destination_vertex, path)
+        
+        return path
+
+
 
 if __name__ == '__main__':
     graph = Graph()  # Instantiate your graph
@@ -185,7 +286,7 @@ if __name__ == '__main__':
     '''
     # graph.dft(1)
     
-    graph.dft_recursive(1)
+    # graph.dft_recursive(1)
 
     # '''
     # Valid BFS path:
@@ -199,4 +300,4 @@ if __name__ == '__main__':
     #     [1, 2, 4, 7, 6]
     # '''
     # print(graph.dfs(1, 6))
-    # print(graph.dfs_recursive(1, 6))
+    print(graph.dfs_recursive(1, 6))
