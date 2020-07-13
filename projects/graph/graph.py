@@ -219,14 +219,17 @@ class Graph:
 
         This should be done using recursion.
         """
-        # base case
 
+        if starting_vertex == destination_vertex:
+            path += [starting_vertex]
+            return path
+        
         path += [starting_vertex]
         
         # recursive case
-        neighbors = self.get_neighbors(starting_vertex)
-        for neighbor in neighbors:
-            if neighbor not in path:
+        neighbors = list(self.get_neighbors(starting_vertex))
+        for neighbor in reversed(neighbors):
+            if neighbor not in path and destination_vertex not in path:
                 path = self.dfs_recursive(neighbor, destination_vertex, path)
         
         return path
