@@ -112,65 +112,25 @@ class Graph:
         starting_vertex to destination_vertex in
         breath-first order.
         """
-        # make a stack
-        # push on our starting node
-        s = Stack()
-        s.push(starting_vertex)
-        # make a set to track if a vertex has been visited before
+        q = Queue()
+        
         visited = set()
-        visited.add(starting_vertex)
         
-        shortest = []
+        path = [starting_vertex]
+        q.enqueue(path)
         
-        # while our queue isnt empty
-        while s.size() > 0:
-            # take first in line
-            curr = s.pop()
-            visited.add(curr)
-
-            # look at neighbors for any not visited
-            neighbors = self.get_neighbors(curr)   
-            if destination_vertex in neighbors:
-                shortest.append(curr)
-                shortest.append(destination_vertex)
-                return shortest
-            else:
-                shortest.append(curr)
-                
-            for neighbor in neighbors:
-                if neighbor not in visited:
-                    s.push(neighbor)
-                    visited.add(neighbor)
-                    
-        # # make a queue
-        # # enqueue starting_vertex
-        # q = Queue()
-        # q.enqueue(starting_vertex)
-        # # make a set to track if a vertex has been visited before
-        # visited = set()
-        # visited.add(starting_vertex)
-        
-        # shortest = []
-        
-        # # while our queue isnt empty
-        # while q.size() > 0:
-        #     # take first in line
-        #     curr = q.dequeue()
-        #     visited.add(curr)
-
-        #     # look at neighbors for any not visited
-        #     neighbors = self.get_neighbors(curr)   
-        #     if destination_vertex in neighbors:
-        #         shortest.append(curr)
-        #         shortest.append(destination_vertex)
-        #         return shortest
-        #     else:
-        #         shortest.append(curr)
-                
-        #     for neighbor in neighbors:
-        #         if neighbor not in visited:
-        #             q.enqueue(neighbor)
-        #             visited.add(neighbor)
+        while q.size() > 0:
+            current_path = q.dequeue()
+            current_node = current_path[-1]
+            
+            if current_node == destination_vertex:
+                return current_path
+            
+            if current_node not in visited:
+                visited.add(current_node)
+                neighbors = self.get_neighbors(current_node)
+                for neighbor in neighbors:
+                    q.enqueue(current_path + [neighbor])
         
 
     def dfs(self, starting_vertex, destination_vertex):
@@ -295,7 +255,7 @@ if __name__ == '__main__':
     # Valid BFS path:
     #     [1, 2, 4, 6]
     # '''
-    # print(graph.bfs(1, 6))
+    print(graph.bfs(1, 6))
 
     # '''
     # Valid DFS paths:
@@ -303,4 +263,4 @@ if __name__ == '__main__':
     #     [1, 2, 4, 7, 6]
     # '''
     # print(graph.dfs(1, 6))
-    print(graph.dfs_recursive(1, 6))
+    # print(graph.dfs_recursive(1, 6))
