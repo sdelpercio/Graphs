@@ -1,3 +1,6 @@
+import random
+from queue import Queue
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -27,6 +30,11 @@ class SocialGraph:
         self.last_id += 1  # automatically increment the ID to assign the new user
         self.users[self.last_id] = User(name)
         self.friendships[self.last_id] = set()
+        
+    def fisher_yates_shuffle(self, l):
+        for i in range(0, len(l)):
+            random_index = random.randint(i, len(l) - 1)
+            l[random_index], l[i] = l[i], l[random_index]
 
     def populate_graph(self, num_users, avg_friendships):
         """
@@ -45,8 +53,33 @@ class SocialGraph:
         # !!!! IMPLEMENT ME
 
         # Add users
+        ## use num_users
+        for user in range(num_users):
+            self.add_user(user)
 
         # Create friendships
+        ### Example:
+        # 5 users
+        # [(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)]
+        ## make a list with all possible friendships
+        ## since friends are mutual, we dont need copies for each friend
+        friendships = []
+        for user in range(1, self.last_id + 1):
+            for friend in range(user + 1, num_users + 1):
+                friendship = (user, friend)
+                friendships.append(friendship)
+        
+        ## shuffle the list
+        self.fisher_yates_shuffle(friendships)
+        
+        ## Take as many relationships as we need
+        toal_friendships = num_users * avg_friendships
+        
+        random_friendships = friendships[:toal_friendships//2]        
+        
+        # add to self.friendships
+        for frienship in random_friendships:
+            self.add_friendship(frienship[0], frienship[1])
 
     def get_all_social_paths(self, user_id):
         """
@@ -58,7 +91,34 @@ class SocialGraph:
         The key is the friend's ID and the value is the path.
         """
         visited = {}  # Note that this is a dictionary, not a set
+        # key = visited user, value = path
         # !!!! IMPLEMENT ME
+        # ex.
+        # {1: {8, 10, 5}, 2: {10, 5, 7}, 3: {4}, 4: {9, 3}, 5: {8, 1, 2}, 6: {10}, 7: {2}, 8: {1, 5}, 9: {4}, 10: {1, 2, 6}}
+        # to
+        #{1: [1], 8: [1, 8], 10: [1, 10], 5: [1, 5], 2: [1, 10, 2], 6: [1, 10, 6], 7: [1, 10, 2, 7]}
+        
+        # start queue, add starting id and path to queue
+        q = Queue()
+        path = [user_id]
+        q.put(path)
+        
+        # go through all possible connections
+        while q.qsize() > 0:
+        ## pop off first in queue
+            current_path = q.get()
+        ## get last node in path (current node)
+            current_node = current_path[-1]
+        
+        ## check to see if the current node has an entry in visited dictionary
+            if current_node not in visited:
+            ### add the current node with it's path to visited
+                visited[current_node] = current_path
+            ### go through that node's relationships, add their path to queue
+                friends = self.friendships[current_node]
+                for friend in friends:
+                    q.put(current_path + [friend])
+
         return visited
 
 
