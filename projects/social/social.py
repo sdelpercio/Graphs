@@ -73,9 +73,9 @@ class SocialGraph:
         self.fisher_yates_shuffle(friendships)
         
         ## Take as many relationships as we need
-        toal_friendships = num_users * avg_friendships
+        total_friendships = num_users * avg_friendships
         
-        random_friendships = friendships[:toal_friendships//2]        
+        random_friendships = friendships[:total_friendships//2]        
         
         # add to self.friendships
         for frienship in random_friendships:
@@ -124,7 +124,8 @@ class SocialGraph:
 
 if __name__ == '__main__':
     sg = SocialGraph()
-    sg.populate_graph(10, 2)
+    sg.populate_graph(30, 2)
     print(sg.friendships)
     connections = sg.get_all_social_paths(1)
+    print('')
     print(connections)
