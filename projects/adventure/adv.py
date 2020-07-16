@@ -5,6 +5,37 @@ from world import World
 import random
 from ast import literal_eval
 
+class Graph:
+    def __init__(self):
+        self.rooms = {}
+        
+    def add_room(self, room.id):
+        if room.id not in self.rooms:
+            exits = room.get_exits()
+            self.rooms[room.id] = {}
+            
+            for e in exits:
+                self.rooms[room.id][e] = '?'
+                
+    
+    def add_edge(self, r1, r2, direction):
+        if direction == 'n':
+            self.rooms[r1.id]['n'] = r2.id
+            self.rooms[r2.id]['s'] = r1.id
+        if direction == 's':
+            self.rooms[r1.id]['s'] = r2.id
+            self.rooms[r2.id]['n'] = r1.id
+        if direction == 'e':
+            self.rooms[r1.id]['e'] = r2.id
+            self.rooms[r2.id]['w'] = r1.id
+        if direction == 'w':
+            self.rooms[r1.id]['w'] = r2.id
+            self.rooms[r2.id]['e'] = r1.id
+        
+    def get_neighbors(self, room):
+        return self.rooms[room.id].items()
+
+
 # Load world
 world = World()
 
@@ -27,8 +58,50 @@ player = Player(world.starting_room)
 
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
+
+## WRITE ALGORITHM TO FILL TRAVERSAL PATH WITH DIRECTIONS TO ALL ROOMS
 traversal_path = []
 
+# Hints:
+## map is not a graph, you'll need to create own adjacency list, figure out whats in it
+## add exits to value for each room key
+## We want a list of directions, with minimum amount of steps
+## When you hit a room with no unexplored exits, back track until you find a room with unexplored exits
+## NEAREST NODE with unexplored exits (BFS)
+## NOdes: Rooms
+## Edges: exits to other rooms
+
+
+
+# 1. Construct adjacency list
+# ex.
+## { 000: {'n': 001, 's': 005, 'e': 007, 'w': 003}, ... }
+
+# start a dictionary
+# start a Queue
+# add starting room to queue
+
+# enter a loop until queue is empty
+## dequeue latest room node
+## set dequeued room to current
+
+## get neighbors for current room
+## check node for key,value (direction,status)
+## if any status == '?', 
+### get that room's object/id
+### set current_node's value for that direction
+### add that next room to the queue
+
+
+
+# 2. Enter a while loop 
+
+# Choose a random direction
+# Travel down that direction until there are no more exits unvisited
+# Use Breadth First Search to retrace steps until a room with unvisited exits is found
+# once a room is found, convert those rooms to cardinal directions, add to traversal_path
+
+# repeat until BFS returns an empty array
 
 
 # TRAVERSAL TEST
