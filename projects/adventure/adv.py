@@ -38,22 +38,26 @@ class Graph:
     
 def retrace_bfs(room_id, visited, graph):
     q = Queue()
+    retrace_visited = set()
         
     path = [('start', room_id)]
     q.put(path)
+    retrace_visited.add(room_id)
     
     while q.qsize() > 0:
         current_path = q.get()
         current_node = current_path[-1][1]
-        current_exits = graph.get_neighbors(current_node)
         
         # once a room is found, convert those rooms to cardinal directions, add to traversal_path
+        if current_node not in visited:
+            return current_path[1:]
+        
+        current_exits = graph.get_neighbors(current_node)
         for d,r in current_exits:
-            if r not in visited:
-                current_path.append((d, r))
-                return current_path[1:]
-            else:
+            if r not in retrace_visited:
+                retrace_visited.add(r)
                 q.put(current_path + [(d, r)])
+    return path
 
 
 # Load world
@@ -61,11 +65,11 @@ world = World()
 
 
 # You may uncomment the smaller graphs for development and testing purposes.
-# map_file = "maps/test_line.txt"
-# map_file = "maps/test_cross.txt"
-# map_file = "maps/test_loop.txt"
-map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+# map_file = "projects/adventure/maps/test_line.txt"
+# map_file = "projects/adventure/maps/test_cross.txt"
+# map_file = "projects/adventure/maps/test_loop.txt"
+# map_file = "projects/adventure/maps/test_loop_fork.txt"
+map_file = "projects/adventure/maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -116,19 +120,21 @@ while q.qsize() > 0:
             ### add that next room to the queue
             q.put(dif_room)
 
-print(graph.rooms)
+# print(graph.rooms)
 
 # 2. Enter a while loop 
 traversal_path = []
 visited = set()
 prev_room = world.starting_room
 
-while len(visited) < len(graph.rooms.keys()):
+while len(visited) < len(graph.rooms.keys()) - 1:
     # get exits from current room
     exits = graph.get_neighbors(player.current_room.id)
     
     # if you are at an end
-    if len(exits) == 1:
+    if len(exits) == 1 and player.current_room != world.starting_room:
+        visited.add(player.current_room.id)
+        
         # retrace steps to unvisited exit using BFS
         retrace_path = retrace_bfs(player.current_room.id, visited, graph)
 
@@ -139,7 +145,16 @@ while len(visited) < len(graph.rooms.keys()):
                     
     else:
         # Choose a random direction
-        dir_list = [d for d,r in exits if r != prev_room.id and r not in visited]
+        dir_list = [d for d,r in exits if r != prev_room.id]
+        if not dir_list:
+            # retrace steps to unvisited exit using BFS
+            retrace_path = retrace_bfs(player.current_room.id, visited, graph)
+
+            for d,r in retrace_path:
+                traversal_path.append(d)
+                prev_room = player.current_room
+                player.travel(d)
+                continue
         random_dir = dir_list[random.randint(0,len(dir_list) - 1)]
         
         # log movement
@@ -155,19 +170,19 @@ while len(visited) < len(graph.rooms.keys()):
 
 
 # TRAVERSAL TEST
-# visited_rooms = set()
-# player.current_room = world.starting_room
-# visited_rooms.add(player.current_room)
+visited_rooms = set()
+player.current_room = world.starting_room
+visited_rooms.add(player.current_room)
 
-# for move in traversal_path:
-#     player.travel(move)
-#     visited_rooms.add(player.current_room)
+for move in traversal_path:
+    player.travel(move)
+    visited_rooms.add(player.current_room)
 
-# if len(visited_rooms) == len(room_graph):
-#     print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
-# else:
-#     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-#     print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
+if len(visited_rooms) == len(room_graph):
+    print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
+else:
+    print("TESTS FAILED: INCOMPLETE TRAVERSAL")
+    print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
 
 
 
