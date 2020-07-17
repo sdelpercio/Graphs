@@ -6,6 +6,7 @@ import random
 from ast import literal_eval
 from queue import Queue
 
+### HELPERS ###
 class Graph:
     def __init__(self):
         self.rooms = {}
@@ -32,8 +33,27 @@ class Graph:
             self.rooms[r1.id]['w'] = r2.id
             self.rooms[r2.id]['e'] = r1.id
         
-    def get_neighbors(self, room):
-        return self.rooms[room.id].items()
+    def get_neighbors(self, room_id):
+        return self.rooms[room_id].items()
+    
+def retrace_bfs(room_id, visited, graph):
+    q = Queue()
+        
+    path = [('start', room_id)]
+    q.put(path)
+    
+    while q.qsize() > 0:
+        current_path = q.get()
+        current_node = current_path[-1][1]
+        current_exits = graph.get_neighbors(current_node)
+        
+        # once a room is found, convert those rooms to cardinal directions, add to traversal_path
+        for d,r in current_exits:
+            if r not in visited:
+                current_path.append((d, r))
+                return current_path[1:]
+            else:
+                q.put(current_path + [(d, r)])
 
 
 # Load world
@@ -85,7 +105,7 @@ while q.qsize() > 0:
     current_room = q.get()
 
     ## get neighbors for current room
-    exits = graph.get_neighbors(current_room)
+    exits = graph.get_neighbors(current_room.id)
     ## check node for key,value (direction,room)
     for d,r in exits:    
         if r == '?':
@@ -105,15 +125,18 @@ prev_room = world.starting_room
 
 while len(visited) < len(graph.rooms.keys()):
     # get exits from current room
-    exits = graph.get_neighbors(player.current_room)
+    exits = graph.get_neighbors(player.current_room.id)
     
     # if you are at an end
     if len(exits) == 1:
-        pass
-        # TODO: retrace steps to unvisited exit using BFS
-        # once a room is found, convert those rooms to cardinal directions, add to traversal_path
-        # repeat until BFS returns an empty array
-    
+        # retrace steps to unvisited exit using BFS
+        retrace_path = retrace_bfs(player.current_room.id, visited, graph)
+
+        for d,r in retrace_path:
+            traversal_path.append(d)
+            prev_room = player.current_room
+            player.travel(d)
+                    
     else:
         # Choose a random direction
         dir_list = [d for d,r in exits if r != prev_room.id and r not in visited]
